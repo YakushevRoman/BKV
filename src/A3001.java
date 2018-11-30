@@ -2,18 +2,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/** для перебора колекции
- * for (ArrayList<Map<String,Double>> maps : allList3001){
- *             for (Map<String, Double> map : maps){
- *                 for (Map.Entry m : map.entrySet()) {
- *                     if (m.getKey() == "l_imu_0") {
- *                         // = (Double) m.getValue();
- *                     }
- *                 }
- *             }
- *         }
- */
-
 public class A3001 {
     QuaternionToMatrix quaternionToMatrix;
     ArcTg arcTg;
@@ -44,6 +32,8 @@ public class A3001 {
         getG_geo();
         getMatrix();
         getDW_g();
+        getV_g();
+        getOmega_a_g();
     }
 
     /**
@@ -189,7 +179,7 @@ public class A3001 {
         allList3001.add(list3001);
     }
 
-   public void  getMatrix (){
+    public void getMatrix() {
         quaternionToMatrix = new QuaternionToMatrix(this);
 
         list3001 = new ArrayList<>();
@@ -200,7 +190,7 @@ public class A3001 {
 
     }
 
-    public void getDW_g(){
+    public void getDW_g() {
         Double c_g1_0 = 0.0;
         Double c_g1_1 = 0.0;
         Double c_g1_2 = 0.0;
@@ -265,27 +255,93 @@ public class A3001 {
             }
         }
 
-        map3001.put("dw_g_x", c_g1_0*dw_imu_x + c_g1_1*dw_imu_y + c_g1_2*dw_imu_z);
-        map3001.put("dw_g_y", c_g1_3*dw_imu_x + c_g1_4*dw_imu_y + c_g1_5*dw_imu_z);
-        map3001.put("dw_g_z", c_g1_6*dw_imu_x + c_g1_7*dw_imu_y + c_g1_8*dw_imu_z);
+        map3001.put("dw_g_x", c_g1_0 * dw_imu_x + c_g1_1 * dw_imu_y + c_g1_2 * dw_imu_z);
+        map3001.put("dw_g_y", c_g1_3 * dw_imu_x + c_g1_4 * dw_imu_y + c_g1_5 * dw_imu_z);
+        map3001.put("dw_g_z", c_g1_6 * dw_imu_x + c_g1_7 * dw_imu_y + c_g1_8 * dw_imu_z);
 
         list3001.add(map3001);
         allList3001.add(list3001);
     }
 
-   public void getV_g(){
-        v_g[0] = 0;
-        v_g[1] = 0;
-        v_g[2] = Constants.DOUBLE_Q*r_geo_init*Math.cos(B);
+    public void getV_g() {
+        Double b_0 = 0.0;
+        Double r_geo_init = 0.0;
+        map3001 = new HashMap<>();
+        list3001 = new ArrayList<>();
 
+        for (ArrayList<Map<String, Double>> maps : allList3001) {
+            for (Map<String, Double> map : maps) {
+                for (Map.Entry m : map.entrySet()) {
+                    if (m.getKey() == "r_geo_init") {
+                        r_geo_init = (Double) m.getValue();
+                    }
+                }
+            }
+        }
+
+        for (ArrayList<Map<String, Double>> maps : a3101.getAllList()) {
+            for (Map<String, Double> map : maps) {
+                for (Map.Entry m : map.entrySet()) {
+                    if (m.getKey() == "b_0") {
+                        b_0 = (Double) m.getValue();
+                    }
+                }
+            }
+        }
+        map3001.put("v_g_x", 0.0);
+        map3001.put("v_g_y", 0.0);
+        map3001.put("v_g_z", Constants.DOUBLE_Q * r_geo_init * Math.cos(b_0));
+
+        list3001.add(map3001);
+        allList3001.add(list3001);
     }
 
-   /* public double[] getOmega_a_g(){
-        omega_a_g[0] = v_g[2]/r_geo_init;
-        omega_a_g[1] = (v_g[2]*Math.tan(B))/r_geo_init;
-        omega_a_g[2] = - v_g[0]/r_geo_init;
-        return omega_a_g;
+    public void getOmega_a_g() {
+        Double v_g_x = 0.0;
+        Double v_g_z = 0.0;
+        Double r_geo_init = 0.0;
+        Double b_0 = 0.0;
+
+        map3001 = new HashMap<>();
+        list3001 = new ArrayList<>();
+
+        for (ArrayList<Map<String, Double>> maps : allList3001) {
+            for (Map<String, Double> map : maps) {
+                for (Map.Entry m : map.entrySet()) {
+                    if (m.getKey() == "v_g_x") {
+                        v_g_x = (Double) m.getValue();
+                    }
+                    if (m.getKey() == "v_g_z") {
+                        v_g_z = (Double) m.getValue();
+                    }
+                    if (m.getKey() == "v_g_x") {
+                        v_g_x = (Double) m.getValue();
+                    }
+                    if (m.getKey() == "r_geo_init") {
+                        r_geo_init = (Double) m.getValue();
+                    }
+                }
+            }
+        }
+
+        for (ArrayList<Map<String, Double>> maps : a3101.getAllList()) {
+            for (Map<String, Double> map : maps) {
+                for (Map.Entry m : map.entrySet()) {
+                    if (m.getKey() == "b_0") {
+                        b_0 = (Double) m.getValue();
+                    }
+                }
+            }
+        }
+
+        map3001.put("omega_a_g_x", v_g_z / r_geo_init);
+        map3001.put("omega_a_g_y", (v_g_z * Math.tan(b_0)) / r_geo_init);
+        map3001.put("omega_a_g_z", -v_g_x / r_geo_init);
+
+        list3001.add(map3001);
+        allList3001.add(list3001);
     }
+
 
     /*public double [] getDv_g(){
         dv_g[0] = DW_g[0] + g_geo[0];
